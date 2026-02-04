@@ -80,7 +80,7 @@ def main():
         if iloop % Nsteps4UpdateEREFs == 0:
             mydata.update_EREFs(mydata.this_types, eatoms)
             logstr = f"Reference energies of each type at {iloop} step are :{mydata.EREFs}"
-            print(logstr)
+            Logfile.write_to_file(logstr, open_style="a")
 
         isAccept, iaccept, ireject = mydata.MMC(iaccept, ireject, Temp=Temperature)
         if not isAccept:
