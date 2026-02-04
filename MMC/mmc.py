@@ -28,12 +28,17 @@ class DFWriter:
         self.df.to_csv(self.fname, index=False)
     
 class LOGWriter:
-    def __init__(self, fname):
+    def __init__(self, fname, screen=True, log=True):
         self.fname = fname
+        self.screen = screen
+        self.log = log
 
     def write_to_file(self, thisstring, open_style="a"):
-        with open(self.fname, open_style) as fh:
-            fh.write(thisstring + "\n")
+        if self.screen:
+            print(thisstring)
+        if self.log:
+            with open(self.fname, open_style) as fh:
+                fh.write(thisstring + "\n")
 
 class PyLMP4MMC:
     def __init__(self, Screen=False, Log=False, comm=None):
@@ -153,8 +158,8 @@ class MMC:
                 EREFs[i] = np.sum(thiseatoms)/len(thiseatoms)
         self.EREFs = EREFs 
 
-    def write_shifted_data(self, types, eatoms, ratio_shift, filein, atom_style="atomic"):
-        lmpdata = LammpsData.from_file(os.path.join("../test/DataOut", filein), atom_style, sort_id=True)
+    def write_shifted_data(self, types, eatoms, ratio_shift, filein, atom_style="atomic", DataOut_Path="DataOut"):
+        lmpdata = LammpsData.from_file(os.path.join(DataOut_Path, filein), atom_style, sort_id=True)
         ff_elements = np.append(self.ff_elements, self.ff_elements)
         force_field = {}
         for i in range(len(ff_elements)):
@@ -167,14 +172,14 @@ class MMC:
         eadiff = eatoms - earefs
         natoms4mmc = len(eadiff)
         inds = np.argsort(-eadiff)
-        iratio = int(natoms4mmc*ratio_shift)
+        iratio = int(natoms4mmc * ratio_shift)
         sorted_types = types[inds]
         hot_types = sorted_types[0:iratio] + self.ntypes
         sorted_types = np.append(hot_types, sorted_types[iratio:natoms4mmc])
         sinds = np.argsort(inds)
         shifted_types = sorted_types[sinds]
         lmpdata.atoms['type'] = shifted_types
-        lmpdata.write_file(os.path.join("../test/DataOut", filein + "_shifted.dat"))
+        lmpdata.write_file(os.path.join(DataOut_Path, filein + "_shifted.dat"))
 
     def get_select_ids(self, types, eatoms, Exclude_types=None, Enforce_types=None, maxloop=100):
         if isinstance(Enforce_types, int):
@@ -212,16 +217,16 @@ class MMC:
             sid_hot = inds[sid_hot]
             sid_hot = goodinds[sid_hot]
             type_hot = apptypes[sid_hot]
-            if Enforce_types is None:
-                isValid = True
-            else:
+            if isinstance(Enforce_types, list) or isinstance(Enforce_types, np.ndarray):
                 if type_hot + 1 in Enforce_types:
                     isValid = True
+            else:
+                isValid = True
+
             if iloop > maxloop:
                 isValid = True
             iloop += 1
         sym_hot = self.ff_elements[type_hot]
-
         syms_cold = self.ff_elements[apptypes[goodinds]]
         syms_cold = syms_cold[inds]
         inds_cold = np.compress(syms_cold != sym_hot, inds)
