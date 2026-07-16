@@ -1,8 +1,22 @@
 loopmax:1000 Temp:300.0 convergenc: energy < 0.001 in 100 steps
-start MMC for fname:FeCr5.dat natoms:16000 ratio_hot:0.1 ratio_cold: 0.5
+start MMC for fname:FeCr5.dat natoms:16000 ratio_hot1:0.1 ratio_hot2: 0.3
 Reference energies of each type at 0 step are :[-4.06940084 -2.83199284]
 == iloop:0 iaccept:0 ireject: 0 total_energy:-64120.487000357476 ==
-== iloop:10 iaccept:8 ireject: 2 total_energy:-64121.75300214074 ==
-== iloop:20 iaccept:13 ireject: 7 total_energy:-64122.05761132877 ==
-== iloop:30 iaccept:20 ireject: 10 total_energy:-64122.52862083484 ==
-== iloop:40 iaccept:21 ireject: 19 total_energy:-64122.473296598466 ==
+Reference energies of each type at 10 step are :[-4.06950055 -2.83180931]
+== iloop:10 iaccept:9 ireject: 1 total_energy:-64121.855706456154 ==
+Reference energies of each type at 20 step are :[-4.06959203 -2.83163584]
+== iloop:20 iaccept:16 ireject: 4 total_energy:-64123.18550818089 ==
+Reference energies of each type at 30 step are :[-4.06969202 -2.83154467]
+== iloop:30 iaccept:24 ireject: 6 total_energy:-64124.554075431355 ==
+Reference energies of each type at 40 step are :[-4.06974259 -2.83139391]
+== iloop:40 iaccept:30 ireject: 10 total_energy:-64125.20221941484 ==
+Reference energies of each type at 50 step are :[-4.06981245 -2.83117632]
+== iloop:50 iaccept:37 ireject: 13 total_energy:-64126.09007447346 ==
+Reference energies of each type at 60 step are :[-4.06986925 -2.83113429]
+== iloop:60 iaccept:43 ireject: 17 total_energy:-64126.91987816738 ==
+Reference energies of each type at 70 step are :[-4.06991873 -2.83093726]
+== iloop:70 iaccept:50 ireject: 20 total_energy:-64127.51428402211 ==
+Reference energies of each type at 80 step are :[-4.06994004 -2.83084676]
+== iloop:80 iaccept:53 ireject: 27 total_energy:-64128.02457176614 ==
+Reference energies of each type at 90 step are :[-4.06999854 -2.83075703]
+== iloop:90 iaccept:58 ireject: 32 total_energy:-64128.64836578437 ==

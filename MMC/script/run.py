@@ -24,11 +24,14 @@ def main():
     ntypes = MMCsetts["ntypes"]
     EREFs = MMCsetts["EREFs"]
     ff_elements = MMCsetts["ff_elements"]
-    ratio_hot = MMCsetts["ratio_hot"]
-    ratio_cold = MMCsetts["ratio_cold"]
-    reverse_cold = MMCsetts["reverse_cold"]
+    ratio_hot1 = MMCsetts["ratio_hot1"]
+    ratio_hot2 = MMCsetts["ratio_hot2"]
+    norm = MMCsetts["norm"]
+    min_norm = MMCsetts["min_norm"]
+
     mydata = MMC(ntypes, EREFs=EREFs, ff_elements=ff_elements,
-                 ratio_hot=ratio_hot, ratio_cold=ratio_cold, reverse_cold=reverse_cold)
+                 ratio_hot1=ratio_hot1, ratio_hot2=ratio_hot2,
+                 norm=norm, min_norm=min_norm)
     shutil.copy(fdata, os.path.join(DataOut_Path, "MMC0.dat"))
 
     atom_style = thissett.PyLAMMPS["atom_style"]
@@ -59,7 +62,7 @@ def main():
 
     logstr = f"loopmax:{loopmax} Temp:{Temperature} convergenc: energy < {tol} in {Nsteps4Checkpoint} steps"
     Logfile.write_to_file(logstr, open_style="w")
-    logstr = f"start MMC for fname:{fdata} natoms:{mydata.natoms} ratio_hot:{ratio_hot} ratio_cold: {ratio_cold}"
+    logstr = f"start MMC for fname:{fdata} natoms:{mydata.natoms} ratio_hot1:{ratio_hot1} ratio_hot2: {ratio_hot2}"
     Logfile.write_to_file(logstr, open_style="a")
     logstr = f"Reference energies of each type at {iloop} step are :{mydata.EREFs}"
     Logfile.write_to_file(logstr, open_style="a")
