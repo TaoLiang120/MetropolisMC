@@ -76,12 +76,7 @@ class PyLMP4MMC:
         etotal = self.bin.get_thermo("etotal")
         types = self.bin.gather_atoms("type", 0, 1)
         types = np.ctypeslib.as_array(types)
-        try:
-            molids = self.bin.gather_atoms("molecule", 0, 1)
-            molids = np.ctypeslib.as_array(molids)
-        except:
-            molids = None
-        return etotal, types, molids
+        return etotal, types
 
     @staticmethod
     def parse_dumps(fname, natoms):
@@ -164,19 +159,14 @@ class MMC:
         if value >= 1:
             self._natoms = int(value)
 
-    def update_EREFs(self, types, eatoms, molids=None, Exclude_mid=False):
+    def update_EREFs(self, types, eatoms):
         apptypes = types.astype(int) - 1
-        eatoms_mols = copy.deepcopy(eatoms)
-        inds = np.arange(len(eatoms_mols)).astype(int)
-        if Exclude_mid and molids is not None:
-            inds = np.compress(molids >= 0, inds)
-            eatoms_mols = eatoms_mols[inds]
-            inds = np.arange(len(eatoms_mols)).astype(int)
+        inds = np.arange(len(eatoms))
         EREFs = np.zeros(self.ntypes, dtype=float)
         for i in range(self.ntypes):
             thisinds = np.compress(apptypes == i, inds)
             if len(thisinds) > 0:
-                thiseatoms = eatoms_mols[thisinds]
+                thiseatoms = eatoms[thisinds]
                 EREFs[i] = np.sum(thiseatoms)/len(thiseatoms)
         self.EREFs = EREFs 
 
@@ -203,9 +193,7 @@ class MMC:
         lmpdata.atoms['type'] = shifted_types
         lmpdata.write_file(os.path.join(DataOut_Path, filein + "_shifted.dat"))
 
-    def get_select_ids(self, iloop, types, eatoms, Exclude_types=None,
-                       Enforce_types=None, Inteval4Enforce=1,
-                       molids=None, Exclude_mid=False):
+    def get_select_ids(self, types, eatoms, Exclude_types=None, Enforce_types=None, maxloop=100):
         if isinstance(Enforce_types, int):
             Enforce_types = [Enforce_types]
         elif isinstance(Enforce_types, str):
@@ -219,13 +207,7 @@ class MMC:
         earefs = self.EREFs[apptypes]
         eadiff = eatoms - earefs
 
-        inds = np.arange(len(eadiff)).astype(int)
-        inds_mols = np.arange(len(eadiff)).astype(int)
-        if Exclude_mid and molids is not None:
-            inds_mols = np.compress(molids >= 0, inds)
-        eadiff_mols = eadiff[inds_mols]
-        inds = np.arange(len(eadiff_mols)).astype(int)
-
+        inds = np.arange(len(eatoms)).astype(int)
         inds_type = []
         local_inds_type = []
         maxdiff_type = []
@@ -243,7 +225,7 @@ class MMC:
 
             thisinds = np.compress(apptypes == i, inds)
             if len(thisinds) > 0:
-                thiseadiff = eadiff_mols[thisinds]
+                thiseadiff = eadiff[thisinds]
                 local_inds = np.argsort(thiseadiff)[::-1]
                 thismax = thiseadiff[local_inds[0]] / thisnorm
                 #print(f"type:{i} max:{thiseadiff[local_inds[0]]} norm:{thisnorm} maxdiff:{thismax}")
@@ -262,12 +244,8 @@ class MMC:
             maxdiff_type = maxdiff_type[id_type]
 
         if Enforce_types is not None:
-            if iloop % Inteval4Enforce != 0:
-                id1_type = np.array(Enforce_types).astype(int) - 1
-                typeid1 = np.random.randint(len(id1_type), size=1)[0]
-            else:
-                local_typeid1 = np.argmax(np.array(maxdiff_type))
-                typeid1 = id_type[local_typeid1]
+            id1_type = np.array(Enforce_types).astype(int) - 1
+            typeid1 = np.random.randint(len(id1_type), size=1)[0]
         else:
             local_typeid1 = np.argmax(np.array(maxdiff_type))
             typeid1 = id_type[local_typeid1]
@@ -281,7 +259,6 @@ class MMC:
         local_sid1 = np.random.randint(iratio1, size=1)[0]
         global_sid1 = local_inds_type[typeid1][local_sid1]
         sid1 = inds_type[typeid1][global_sid1]
-        sid1 = inds_mols[sid1]
 
 
         id_type = np.delete(id_type, [typeid1])
@@ -296,7 +273,6 @@ class MMC:
         local_sid2 = np.random.randint(iratio2, size=1)[0]
         global_sid2 = local_inds_type[typeid2][local_sid2]
         sid2 = inds_type[typeid2][global_sid2]
-        sid2 = inds_mols[sid2]
 
         #print(f"sym1:{sym1} typeid1:{typeid1} sid1:{sid1} e_1:{eatoms[sid1]}")
         #print(f"sym2:{sym2} typeid2:{typeid2} sid2:{sid2} e_2:{eatoms[sid2]}")

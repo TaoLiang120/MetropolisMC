@@ -1,0 +1,15 @@
+LICENSE
+MANIFEST.in
+README.md
+setup.py
+MMC/__init__.py
+MMC/mmc.py
+MMC/read_input.py
+MMC.egg-info/PKG-INFO
+MMC.egg-info/SOURCES.txt
+MMC.egg-info/dependency_links.txt
+MMC.egg-info/entry_points.txt
+MMC.egg-info/requires.txt
+MMC.egg-info/top_level.txt
+MMC/script/__init__.py
+MMC/script/run.py

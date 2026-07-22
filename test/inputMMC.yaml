@@ -9,6 +9,7 @@ MetropolisMC:
   EREFs: None
   ff_elements:
     - Fe
+    - He
     - Cr
   ratio_hot1: 0.1
   ratio_hot2: 0.3
@@ -17,6 +18,8 @@ MetropolisMC:
   ratio_shift: 0.1
   Exclude_types: None
   Enforce_types: None
+  Inteval4Enforce: 1
+  Exclude_mid: False
   LoopMax: 1000
   Nsteps4Relax: 100
   Nsteps4Checkpoint: 100

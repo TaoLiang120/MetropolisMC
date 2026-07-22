@@ -1,0 +1,2 @@
+[console_scripts]
+MMC = MMC.script.run:main
