@@ -150,7 +150,7 @@ class MMC:
         elif isinstance(self.ratio2, list):
             pass
         else:
-            self.ratio2 = [1.0] * ntypes
+            self.ratio2 = ["none"] * ntypes
         self.norm = norm
 
         if isinstance(self.norm, float) or isinstance(self.norm, int):

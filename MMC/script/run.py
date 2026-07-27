@@ -52,6 +52,11 @@ def main():
     Nsteps4Summary = visualsett["Nsteps4Summary"]
     Nsteps4WriteData = visualsett["Nsteps4WriteData"]
 
+
+    first_types = [0] * ntypes
+    second_types = [0] * ntypes
+    first_accept = [0] * ntypes
+    second_accept = [0] * ntypes
     iloop = 0
     iaccept = 0
     ireject = 0
@@ -69,17 +74,15 @@ def main():
     Logfile.write_to_file(logstr, open_style="a")
     logstr = f"ratio_hot1:{ratio_hot1} ratio2: {ratio2} select_style: {select_style}"
     Logfile.write_to_file(logstr, open_style="a")
-    logstr = f"Reference energies of each type at {iloop} step are :{mydata.EREFs}"
+
+    logstr = f"-- Reference energies of each type at {iloop} step are :{mydata.EREFs} --"
+    logstr += "\n" + f"-- first_types:{first_types} second_types:{second_types} --"
+    logstr += "\n" + f"-- first_accept:{first_accept} second_accept:{second_accept} --"
+    logstr += "\n" + f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
     Logfile.write_to_file(logstr, open_style="a")
-    logstr = f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
     SummaryDF.append_to_file(iloop, iaccept, ireject, init_energy)
-    Logfile.write_to_file(logstr, open_style="a")
 
     isValid = True
-    first_types = [0] * ntypes
-    second_types = [0] * ntypes
-    first_accept = [0] * ntypes
-    second_accept = [0] * ntypes
     while isValid:
         id_hot1, id_2, typeid1, typeid2 = mydata.get_select_ids(iloop, mydata.last_types, eatoms, Exclude_types=Exclude_types,
                                                 Enforce_types=Enforce_types,  Inteval4Enforce=Inteval4Enforce,
@@ -94,8 +97,6 @@ def main():
 
         if iloop % Nsteps4UpdateEREFs == 0:
             mydata.update_EREFs(mydata.this_types, eatoms, molids=molids, Exclude_mid=Exclude_mid)
-            logstr = f"Reference energies of each type at {iloop} step are :{mydata.EREFs}"
-            Logfile.write_to_file(logstr, open_style="a")
 
         isAccept, iaccept, ireject = mydata.MMC(iaccept, ireject, Temp=Temperature)
         if isAccept:
@@ -111,8 +112,9 @@ def main():
             SummaryDF.append_to_file(iloop, iaccept, ireject, mydata.last_TE)
 
         if iloop % Nsteps4Visual == 0:
-            logstr = f"== first_types:{first_types} second_types:{second_types} =="
-            logstr += "\n" + f"== first_accept:{first_accept} second_accept:{second_accept} =="
+            logstr = f"-- Reference energies of each type at {iloop} step are :{mydata.EREFs} --"
+            logstr += "\n" + f"-- first_types:{first_types} second_types:{second_types} --"
+            logstr += "\n" + f"-- first_accept:{first_accept} second_accept:{second_accept} --"
             logstr += "\n" + f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
             Logfile.write_to_file(logstr, open_style="a")
 
@@ -122,8 +124,9 @@ def main():
 
     lmp.write_data(iloop)
     lmp.close()
-    logstr = f"== first_types:{first_types} second_types:{second_types} =="
-    logstr += "\n" + f"== first_accept:{first_accept} second_accept:{second_accept} =="
+    logstr = f"-- Reference energies of each type at {iloop} step are :{mydata.EREFs} --"
+    logstr += "\n" + f"-- first_types:{first_types} second_types:{second_types} --"
+    logstr += "\n" + f"-- first_accept:{first_accept} second_accept:{second_accept} --"
     logstr += "\n" + f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
     Logfile.write_to_file(logstr, open_style="a")
     SummaryDF.append_to_file(iloop, iaccept, ireject, mydata.last_TE)
