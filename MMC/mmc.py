@@ -149,12 +149,11 @@ class MMC:
 
         if isinstance(self.norm, float) or isinstance(self.norm, int):
             self.norm = [self.norm] * ntypes
-        elif self.norm is None:
-            self.norm = ["none"] * ntypes
-        elif self.norm.lower() == "none":
-            self.norm = ["none"] * ntypes
-        else:
+        elif isinstance(norm, str) and norm.lower() == "auto":
             self.norm = ["auto"] * ntypes
+        else:
+            self.norm = ["none"] * ntypes
+
         self.min_norm = min_norm
 
     @property
@@ -238,8 +237,6 @@ class MMC:
             thisref = self.EREFs[i]
             if isinstance(thisnorm, float) or isinstance(thisnorm, int):
                 continue
-            elif thisnorm == "none":
-                thisnorm = 1.0
             elif isinstance(thisnorm, str) and thisnorm.lower() == "auto":
                 thisnorm = max(abs(thisref), self.min_norm)
             else:
