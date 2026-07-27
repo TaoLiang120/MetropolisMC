@@ -149,6 +149,8 @@ class MMC:
 
         if isinstance(self.norm, float):
             self.norm = [self.norm] * ntypes
+        elif self.norm is None:
+            self.norm = ["none"] * ntypes
         elif self.norm.lower() == "none":
             self.norm = ["none"] * ntypes
         else:
@@ -234,11 +236,11 @@ class MMC:
         for i in range(self.ntypes):
             thisnorm = self.norm[i]
             thisref = self.EREFs[i]
-            if isinstance(thisnorm, float):
+            if isinstance(thisnorm, float) or isinstance(thisnorm, int):
                 continue
             elif thisnorm == "none":
                 thisnorm = 1.0
-            elif thisnorm == "auto":
+            elif isinstance(thisnorm, str) and thisnorm.lower() == "auto":
                 thisnorm = max(abs(thisref), self.min_norm)
             else:
                 thisnorm = 1.0
