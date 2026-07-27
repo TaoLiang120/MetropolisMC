@@ -272,7 +272,9 @@ class MMC:
         else:
             thisExclude_types += Exclude_types
         if len(thisExclude_types) > 0:
-            id_type = np.delete(id_type, np.array(thisExclude_types).astype(int) - 1)
+            thisExclude_types = np.array(thisExclude_types).astype(int) - 1
+            thisExclude_types = np.unique(thisExclude_types)
+            id_type = np.delete(id_type, thisExclude_types, axis=0)
             maxdiff_type = maxdiff_type[id_type]
             natype = natype[id_type]
 
