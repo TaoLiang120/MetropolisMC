@@ -93,9 +93,9 @@ class PyLMP4MMC:
                 isValid = False
         
         lines[8] = lines[8].replace("ITEM: ATOMS ", "")
-        with open("../test/tmp.csv", "w") as fh:
+        with open("tmp.csv", "w") as fh:
             fh.writelines(lines[8:8 + 1 + natoms])
-        df = pd.read_csv("../test/tmp.csv", sep=" ")
+        df = pd.read_csv("tmp.csv", sep=" ")
         return df
              
     def get_eatoms(self, iloop, natoms):
@@ -103,10 +103,10 @@ class PyLMP4MMC:
         self.bin.command("dump_modify mydump sort id")
         self.bin.command("run 0")
         eatoms = None
-        while os.path.isfile("../test/thisdump"):
+        while os.path.isfile("thisdump"):
             df = PyLMP4MMC.parse_dumps("thisdump", natoms)
             eatoms = df["c_eatoms"].to_numpy()
-            os.remove("../test/thisdump")
+            os.remove("thisdump")
             if eatoms is None:
                 raise ValueError("Cannot extract energy per atoms!")
         self.bin.command("undump mydump")
