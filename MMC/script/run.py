@@ -25,12 +25,13 @@ def main():
     EREFs = MMCsetts["EREFs"]
     ff_elements = MMCsetts["ff_elements"]
     ratio_hot1 = MMCsetts["ratio_hot1"]
-    ratio_hot2 = MMCsetts["ratio_hot2"]
+    ratio2 = MMCsetts["ratio2"]
+    select_style = MMCsetts["select_style"]
     norm = MMCsetts["norm"]
     min_norm = MMCsetts["min_norm"]
 
     mydata = MMC(ntypes, EREFs=EREFs, ff_elements=ff_elements,
-                 ratio_hot1=ratio_hot1, ratio_hot2=ratio_hot2,
+                 ratio_hot1=ratio_hot1, ratio2=ratio2, select_style=select_style,
                  norm=norm, min_norm=min_norm)
     shutil.copy(fdata, os.path.join(DataOut_Path, "MMC0.dat"))
 
@@ -64,7 +65,9 @@ def main():
 
     logstr = f"loopmax:{loopmax} Temp:{Temperature} convergenc: energy < {tol} in {Nsteps4Checkpoint} steps"
     Logfile.write_to_file(logstr, open_style="w")
-    logstr = f"start MMC for fname:{fdata} natoms:{mydata.natoms} ratio_hot1:{ratio_hot1} ratio_hot2: {ratio_hot2}"
+    logstr = f"start MMC for fname:{fdata} natoms:{mydata.natoms} "
+    Logfile.write_to_file(logstr, open_style="a")
+    logstr = f"ratio_hot1:{ratio_hot1} ratio2: {ratio2} select_style: {select_style}"
     Logfile.write_to_file(logstr, open_style="a")
     logstr = f"Reference energies of each type at {iloop} step are :{mydata.EREFs}"
     Logfile.write_to_file(logstr, open_style="a")
@@ -73,11 +76,17 @@ def main():
     Logfile.write_to_file(logstr, open_style="a")
 
     isValid = True
+    first_types = [0] * ntypes
+    second_types = [0] * ntypes
+    first_accept = [0] * ntypes
+    second_accept = [0] * ntypes
     while isValid:
-        id_hot1, id_hot2 = mydata.get_select_ids(iloop, mydata.last_types, eatoms, Exclude_types=Exclude_types,
+        id_hot1, id_2, typeid1, typeid2 = mydata.get_select_ids(iloop, mydata.last_types, eatoms, Exclude_types=Exclude_types,
                                                 Enforce_types=Enforce_types,  Inteval4Enforce=Inteval4Enforce,
                                                 molids=molids, Exclude_mid=Exclude_mid)
-        this_types = mydata.get_this_types(id_hot1, id_hot2)
+        first_types[typeid1] += 1
+        second_types[typeid2] += 1
+        this_types = mydata.get_this_types(id_hot1, id_2)
         lmp.scatter_this_types(this_types)
         iloop += 1
         mydata.this_TE, mydata.this_types, molids = lmp.get_total_energy_types(iloop)
@@ -89,6 +98,9 @@ def main():
             Logfile.write_to_file(logstr, open_style="a")
 
         isAccept, iaccept, ireject = mydata.MMC(iaccept, ireject, Temp=Temperature)
+        if isAccept:
+            first_accept[typeid1] += 1
+            second_accept[typeid2] += 1
         if not isAccept:
             lmp.scatter_this_types(mydata.last_types)
 
@@ -99,7 +111,9 @@ def main():
             SummaryDF.append_to_file(iloop, iaccept, ireject, mydata.last_TE)
 
         if iloop % Nsteps4Visual == 0:
-            logstr = f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
+            logstr = f"== first_types:{first_types} second_types:{second_types} =="
+            logstr += "\n" + f"== first_accept:{first_accept} second_accept:{second_accept} =="
+            logstr += "\n" + f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
             Logfile.write_to_file(logstr, open_style="a")
 
         isValid, energy_checkpoint = mydata.checkpoint(iloop, isValid, energy_checkpoint,
@@ -108,7 +122,9 @@ def main():
 
     lmp.write_data(iloop)
     lmp.close()
-    logstr = f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
+    logstr = f"== first_types:{first_types} second_types:{second_types} =="
+    logstr += "\n" + f"== first_accept:{first_accept} second_accept:{second_accept} =="
+    logstr += "\n" + f"== iloop:{iloop} iaccept:{iaccept} ireject: {ireject} total_energy:{mydata.last_TE} =="
     Logfile.write_to_file(logstr, open_style="a")
     SummaryDF.append_to_file(iloop, iaccept, ireject, mydata.last_TE)
 
