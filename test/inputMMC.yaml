@@ -13,6 +13,7 @@ MetropolisMC:
     - Cr
   ratio_hot1: 0.1
   ratio_hot2: 0.3
+  select_style: 1
   norm: auto
   min_norm: 0.02
   ratio_shift: 0.1
