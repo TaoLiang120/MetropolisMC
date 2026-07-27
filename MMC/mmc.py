@@ -208,6 +208,7 @@ class MMC:
     def get_select_ids(self, iloop, types, eatoms, Exclude_types=None,
                        Enforce_types=None, Inteval4Enforce=1,
                        molids=None, Exclude_mid=False):
+
         if isinstance(Enforce_types, int):
             Enforce_types = [Enforce_types]
         elif isinstance(Enforce_types, str):
@@ -232,6 +233,7 @@ class MMC:
         inds_type = []
         local_inds_type = []
         maxdiff_type = []
+        natype = []
         for i in range(self.ntypes):
             thisnorm = self.norm[i]
             thisref = self.EREFs[i]
@@ -247,7 +249,6 @@ class MMC:
                 thiseadiff = eadiff_mols[thisinds]
                 local_inds = np.argsort(thiseadiff)[::-1]
                 thismax = thiseadiff[local_inds[0]] / thisnorm
-                #print(f"type:{i} max:{thiseadiff[local_inds[0]]} norm:{thisnorm} maxdiff:{thismax}")
             else:
                 thisinds = np.array([]).astype(int)
                 local_inds = np.array([])
@@ -256,16 +257,36 @@ class MMC:
             inds_type.append(thisinds)
             local_inds_type.append(local_inds)
             maxdiff_type.append(thismax)
+            natype.append(len(thisinds))
 
+        maxdiff_type = np.array(maxdiff_type)
+        natype = np.array(natype).astype(int)
         id_type = np.arange(self.ntypes).astype(int)
-        if Exclude_types is not None:
-            id_type = np.delete(id_type, np.array(Exclude_types).astype(int) - 1)
+        thisExclude_types = []
+        for i in range(self.ntypes):
+            if natype[i] == 0:
+                thisExclude_types.append(i+1)
+                print(f"WARNING: No atoms in type {i+1}!")
+        if Exclude_types is None:
+            pass
+        else:
+            thisExclude_types += Exclude_types
+        if len(thisExclude_types) > 0:
+            id_type = np.delete(id_type, np.array(thisExclude_types).astype(int) - 1)
             maxdiff_type = maxdiff_type[id_type]
+            natype = natype[id_type]
+
+        if len(id_type) < 2:
+            raise ValueError("System is has less than two types for MMMC.")
 
         if Enforce_types is not None:
             if iloop % Inteval4Enforce != 0:
                 id1_type = np.array(Enforce_types).astype(int) - 1
-                typeid1 = np.random.randint(len(id1_type), size=1)[0]
+                local_typeid1 = np.random.randint(len(id1_type), size=1)[0]
+                typeid1 = id_type[local_typeid1]
+                if natype[typeid1] < 2:
+                    local_typeid1 = np.argmax(np.array(maxdiff_type))
+                    typeid1 = id_type[local_typeid1]
             else:
                 local_typeid1 = np.argmax(np.array(maxdiff_type))
                 typeid1 = id_type[local_typeid1]
@@ -284,14 +305,18 @@ class MMC:
         sid1 = inds_type[typeid1][global_sid1]
         sid1 = inds_mols[sid1]
 
+        id_type2 = np.arange(len(id_type))
+        id_type2 = np.compress(id_type != typeid1, id_type2)
+        maxdiff_type = maxdiff_type[id_type2]
+        natype = natype[id_type2]
+        id_type = id_type[id_type2]
 
-        id_type = np.delete(id_type, [typeid1])
         local_typeid2 = np.random.randint(len(id_type), size=1)[0]
         typeid2 = id_type[local_typeid2]
         sym2 = self.ff_elements[typeid2]
         thisratio2 = self.ratio_hot2[typeid2]
         natoms2 = len(local_inds_type[typeid2])
-        iratio2 = int(natoms2*thisratio2)
+        iratio2 = int(natoms2 * thisratio2)
         if iratio2 < 2:
             raise ValueError("System is too small for iratio second pick. Set iratio_hot2 to 1.0 and rerun it.")
         local_sid2 = np.random.randint(iratio2, size=1)[0]
@@ -299,9 +324,10 @@ class MMC:
         sid2 = inds_type[typeid2][global_sid2]
         sid2 = inds_mols[sid2]
 
-        #print(f"sym1:{sym1} typeid1:{typeid1} sid1:{sid1} e_1:{eatoms[sid1]}")
-        #print(f"sym2:{sym2} typeid2:{typeid2} sid2:{sid2} e_2:{eatoms[sid2]}")
-        #print("----")
+        # print(f"sym1:{sym1} typeid1:{typeid1} sid1:{sid1} e_1:{eatoms[sid1]}")
+        # print(f"sym2:{sym2} typeid2:{typeid2} sid2:{sid2} e_2:{eatoms[sid2]}")
+        # print("----")
+
         return sid1, sid2
 
     def get_this_types(self, id_hot, id_cold):
