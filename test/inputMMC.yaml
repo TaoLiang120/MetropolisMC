@@ -4,6 +4,7 @@ PyLAMMPS:
   FileName: FeCr5.dat
   atom_style: atomic
   Input4LAMMPS: in.MMC
+  Input4Relax: None
 MetropolisMC:
   ntypes: 2
   EREFs: None
