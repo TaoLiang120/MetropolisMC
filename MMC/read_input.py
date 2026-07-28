@@ -1,3 +1,4 @@
+import os
 import yaml
 class Settings:
     def __init__(
@@ -58,7 +59,7 @@ class Settings:
         for key in PyLAMMPS:
             thisPyLAMMPS[key] = PyLAMMPS[key]
 
-        if isinstance(thisPyLAMMPS["Input4Relax"], str):
+        if isinstance(thisPyLAMMPS["Input4Relax"], str) and os.path.isfile(thisPyLAMMPS["Input4Relax"]):
             with open(thisPyLAMMPS["Input4Relax"], "r") as f:
                 lines = f.readlines()
             thisPyLAMMPS["relax_lines"] = lines
