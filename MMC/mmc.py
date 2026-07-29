@@ -330,16 +330,16 @@ class MMC:
         natoms2 = len(local_inds_type[typeid2])
 
         thisratio2 = self.ratio2[typeid2]
-        if isinstance(thisratio2, float):
-            if self.select_style == 0:
-                thisratio2 = 1.0 - thisratio2
-        else:
+        if not isinstance(thisratio2, float):
             thisratio2 = 1.0
         iratio2 = int(natoms2 * thisratio2)
         if iratio2 < 2:
             raise ValueError("System is too small for iratio second pick. Set iratio_hot2 to 1.0 and rerun it.")
         local_sid2 = np.random.randint(iratio2, size=1)[0]
-        global_sid2 = local_inds_type[typeid2][local_sid2]
+        if self.select_style == 0:
+            global_sid2 = local_inds_type[typeid2][natoms2 - local_sid2 - 1]
+        else:
+            global_sid2 = local_inds_type[typeid2][local_sid2]
         sid2 = inds_type[typeid2][global_sid2]
         sid2 = inds_mols[sid2]
         # print(f"sym1:{sym1} typeid1:{typeid1} sid1:{sid1} e_1:{eatoms[sid1]}")
