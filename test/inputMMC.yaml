@@ -15,11 +15,12 @@ MetropolisMC:
   ratio_hot1: 0.1
   ratio_hot2: 0.3
   select_style: 1
+  ratio2_style: 0
   norm: auto
   min_norm: 0.02
   ratio_shift: 0.1
   Exclude_types: None
-  Enforce_types: None
+  Enforce_type: None
   Inteval4Enforce: 1
   Exclude_mid: False
   LoopMax: 1000
