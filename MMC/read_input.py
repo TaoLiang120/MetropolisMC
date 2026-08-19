@@ -69,7 +69,7 @@ class Settings:
 
         thisMMC = {"ntypes": 1, "EREFs": None, "ff_elements": None,
                    "ratio_hot": 0.1, "ratio2": 0.5,
-                   "select_style": 0, "ratio2_style": 0,
+                   "ratio2_style": 0,
                    "norm": "none", "min_norm": 0.02,
                    "ratio_shift": 0.1,
                    "Exclude_types": None, "Enforce_type": None,
@@ -114,9 +114,6 @@ class Settings:
 
         if not isinstance(thisMMC["Enforce_type"], int):
             thisMMC["Enforce_type"] = None
-
-        if not isinstance(thisMMC["select_style"], int):
-            thisMMC["select_style"] = 0
 
         if not isinstance(thisMMC["ratio2_style"], int):
             thisMMC["ratio2_style"] = 0
