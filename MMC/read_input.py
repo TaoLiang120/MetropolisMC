@@ -1,5 +1,6 @@
 import os
 import yaml
+import copy
 class Settings:
     def __init__(
             self,
@@ -37,18 +38,20 @@ class Settings:
         with open(filename, 'r') as f:
             parameters = yaml.safe_load(f)
 
-        thissystem = {"significant_figures": 6, "float_precision": 3, "VerySmallNumber": 1.0e-20,
+        system_default = {"significant_figures": 6, "float_precision": 3, "VerySmallNumber": 1.0e-20,
                        "Tolerance": 0.1}
+        thissystem = copy.deepcopy(system_default)
 
         if "system" in parameters:
             tsystem = parameters["system"]
             for key in tsystem:
                 thissystem[key] = tsystem[key]
 
-        thisPyLAMMPS = {"Screen": False, "Log": False,
+        PyLAMMPS_default = {"Screen": False, "Log": False,
                         "FileName": "lmp.data", "atom_style": "atomic",
                         "Input4LAMMPS": "in.lmp",
                         "Input4Relax": None}
+        thisPyLAMMPS = copy.deepcopy(PyLAMMPS_default)
 
         PyLAMMPS = parameters["PyLAMMPS"]
         if "FileName" not in PyLAMMPS:
@@ -67,7 +70,7 @@ class Settings:
             thisPyLAMMPS["relax_lines"] = []
 
 
-        thisMMC = {"ntypes": 1, "EREFs": None, "ff_elements": None,
+        MMC_default = {"ntypes": 1, "EREFs": None, "ff_elements": None,
                    "ratio_hot": 0.1, "ratio2": 0.5,
                    "ratio2_style": 0,
                    "norm": "none", "min_norm": 0.02,
@@ -91,6 +94,7 @@ class Settings:
                1: hot and cold
                2: all atoms for 2nd selection
         '''
+        thisMMC = copy.deepcopy(MMC_default)
 
         MMC = parameters['MetropolisMC']
         if "ntypes" not in MMC:
@@ -125,10 +129,11 @@ class Settings:
             thisMMC["ratio2"] = 1.0
 
 
-        thisvisual = {"SummaryFile": "MMC_Summary.csv", "LogFile": "MMC.log",
+        visual_default = {"SummaryFile": "MMC_Summary.csv", "LogFile": "MMC.log",
                       "Screen": True, "Log": True, "DataOut_Path": "DataOut",
                       "Nsteps4WriteData": 100, "Nsteps4Visual": 10, "Nsteps4Summary": 10,
                       }
+        thisvisual = copy.deepcopy(visual_default)
 
         visual = parameters['visual']
         for key in visual:
